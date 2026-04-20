@@ -1,0 +1,1 @@
+# vqvae_latent_span_collapse
