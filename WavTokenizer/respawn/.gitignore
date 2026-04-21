@@ -1,0 +1,7 @@
+*.pyc
+result/
+*.pt
+*.ckpt
+env/
+!metrics/wav2vec_small.pt
+!metrics/epoch=3-step=7459.ckpt
