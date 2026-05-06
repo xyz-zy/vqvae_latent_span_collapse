@@ -1,0 +1,47 @@
+model:
+  base_learning_rate: 4.5e-6
+  target: taming.models.vqgan.VQModel
+  params:
+    embed_dim: 256
+    n_embed: 1024    # 2^10 — matches CompVis reference codebook size
+    vq_kwargs:
+      usage_ema_decay: 0.99
+      usage_respawn_threshold: 0.0    # respawn disabled (vanilla VQGAN)
+      respawn_warmup_steps: 0       # k-means init seeds usage_ema from actual counts
+    ddconfig:
+      double_z: False
+      z_channels: 256
+      resolution: 128
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult: [1, 1, 2, 2, 4]
+      num_res_blocks: 2
+      attn_resolutions: [16]
+      dropout: 0.0
+
+    lossconfig:
+      target: taming.modules.losses.vqperceptual.VQLPIPSWithDiscriminator
+      params:
+        disc_conditional: False
+        disc_in_channels: 3
+        disc_start: 100000000
+        disc_weight: 0.8
+        codebook_weight: 1.0
+        perceptual_weight: 1.0
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 16
+    num_workers: 4
+    train:
+      target: taming.data.custom.CustomTrain
+      params:
+        training_images_list_file: data/imagenet100_train.txt
+        size: 128
+    validation:
+      target: taming.data.custom.CustomTest
+      params:
+        test_images_list_file: data/imagenet100_val.txt
+        size: 128
